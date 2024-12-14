@@ -200,7 +200,6 @@ impl CartContext {
             self.header = Some(header);
         }
 
-        // Assuming the header exists
         if let Some(header) = &self.header {
             println!("Cartridge Loaded:");
             println!("\t Title    : {}", header.title_as_string());
