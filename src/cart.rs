@@ -256,4 +256,12 @@ impl CartContext {
         }
         String::from("Unknown")
     }
+
+    pub fn cart_read(self, address: u16) -> u8 {
+        self.rom_data[address as usize]
+    }
+
+    pub fn cart_write(&mut self, address: u16, value: u8) {
+        panic!("Not yet implemented");
+    }
 }
