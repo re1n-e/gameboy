@@ -1,4 +1,4 @@
-use crate::bus::{self, bus_read};
+use crate::bus;
 use crate::cart::CartContext;
 use crate::instructions::{self, AddrMode, RegType};
 struct CpuRegister {
@@ -25,7 +25,7 @@ impl CpuRegister {
             e: 0,
             h: 0,
             l: 0,
-            pc: 0,
+            pc: 100,
             sp: 0,
         }
     }
@@ -56,7 +56,6 @@ impl CpuContext {
         }
     }
 
-
     fn cpu_read_reg(&self, rt: &RegType) -> u16 {
         match rt {
             RegType::RtA => self.regs.a as u16,
@@ -81,7 +80,7 @@ impl CpuContext {
 
     fn fetch_instruction(&mut self, cart: &CartContext) {
         self.cur_opcode = bus::bus_read(cart, self.regs.pc);
-        self.regs.pc += 1;
+        self.regs.pc = self.regs.pc.wrapping_add(1);
         self.cur_inst = instructions::instruction_by_opcode(self.cur_opcode);
     }
 
@@ -118,6 +117,7 @@ impl CpuContext {
     }
 
     pub fn cpu_step(&mut self, cart: &CartContext) -> bool {
+        println!("PC: {} ", self.regs.pc);
         if !self.halted {
             self.fetch_instruction(cart);
             self.fetch_data(cart);
