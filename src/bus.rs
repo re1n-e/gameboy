@@ -1,3 +1,5 @@
+use crate::cart::CartRead;
+
 // 0x0000 - 0x3FFF : ROM Bank 0
 // 0x4000 - 0x7FFF : ROM Bank 1 - Switchable
 // 0x8000 - 0x97FF : CHR RAM
@@ -11,16 +13,16 @@
 // 0xFEA0 - 0xFEFF : Reserved - Unusable
 // 0xFF00 - 0xFF7F : I/O Registers
 // 0xFF80 - 0xFFFE : Zero Page
-fn bus_read(address: u16) {
+pub fn bus_read(cart: &impl CartRead, address: u16) -> u8 {
     if address < 0x8000 {
-        // cart_read();
+        return cart.cart_read(address);
     }
-    panic!("Not impl");
+    return 0;
 }
 
-fn bus_write(address: u16, value: u8) {
+pub fn bus_write(cart: &impl CartRead, address: u16, value: u8) {
     if address < 0x8000 {
-        // cart_write(address, value);
+        cart.cart_write(address, value);
     }
     panic!("Not impl");
 }

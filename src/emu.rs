@@ -1,7 +1,4 @@
-use crate::{
-    cart::{self, CartContext},
-    common, cpu,
-};
+use crate::{cart, common, cpu::{self, CpuContext}};
 
 use sdl2::{
     self,
@@ -50,7 +47,7 @@ impl emu_context {
             println!("TTF INIT");
         }
 
-        cpu::cpu_init();
+        let mut cpu: CpuContext = CpuContext::new();
 
         self.running = true;
         self.paused = false;
@@ -62,7 +59,7 @@ impl emu_context {
                 continue;
             }
 
-            if !cpu::cpu_step() {
+            if !cpu.cpu_step(&cart) {
                 panic!("CPU Stopped");
             }
 

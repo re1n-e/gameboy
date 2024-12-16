@@ -1,4 +1,4 @@
-enum AddrMode {
+pub enum AddrMode {
     AmImp,
     AmRD16,
     AmRr,
@@ -22,7 +22,7 @@ enum AddrMode {
     AmRa16,
 }
 
-enum RegType {
+pub enum RegType {
     RtNone,
     RtA,
     RtF,
@@ -40,7 +40,7 @@ enum RegType {
     RtPc,
 }
 
-enum InType {
+pub enum InType {
     InNone,
     InNop,
     InLd,
@@ -92,7 +92,7 @@ enum InType {
     InSet,
 }
 
-enum CondType {
+pub enum CondType {
     CtNone,
     CtNz,
     CtZ,
@@ -100,11 +100,65 @@ enum CondType {
     CtC,
 }
 
-struct Instruction {
-    type_in: InType,
-    mode: AddrMode,
-    reg_1: RegType,
-    reg_2: RegType,
-    cond: CondType,
-    param: u8,
+pub struct Instruction {
+    pub type_in: InType,
+    pub mode: AddrMode,
+    pub reg_1: RegType,
+    pub reg_2: RegType,
+    pub cond: CondType,
+    pub param: u8,
+}
+
+pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
+    match opcode {
+        0x00 => Some(Instruction {
+            type_in: InType::InNop,
+            mode: AddrMode::AmImp,
+            reg_1: RegType::RtNone,
+            reg_2: RegType::RtNone,
+            cond: CondType::CtNone,
+            param: 0,
+        }),
+        0x05 => Some(Instruction {
+            type_in: InType::InDec,
+            mode: AddrMode::AmR,
+            reg_1: RegType::RtB,
+            reg_2: RegType::RtNone,
+            cond: CondType::CtNone,
+            param: 0,
+        }),
+        0x0E => Some(Instruction {
+            type_in: InType::InLd,
+            mode: AddrMode::AmRD8,
+            reg_1: RegType::RtC,
+            reg_2: RegType::RtNone,
+            cond: CondType::CtNone,
+            param: 0,
+        }),
+        0xAF => Some(Instruction {
+            type_in: InType::InXor,
+            mode: AddrMode::AmR,
+            reg_1: RegType::RtA,
+            reg_2: RegType::RtNone,
+            cond: CondType::CtNone,
+            param: 0,
+        }),
+        0xC3 => Some(Instruction {
+            type_in: InType::InJp,
+            mode: AddrMode::AmD16,
+            reg_1: RegType::RtNone,
+            reg_2: RegType::RtNone,
+            cond: CondType::CtNone,
+            param: 0,
+        }),
+        0xF3 => Some(Instruction {
+            type_in: InType::InDi,
+            mode: AddrMode::AmImp,
+            reg_1: RegType::RtNone,
+            reg_2: RegType::RtNone,
+            cond: CondType::CtNone,
+            param: 0,
+        }),
+        _ => None,
+    }
 }
