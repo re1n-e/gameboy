@@ -262,7 +262,7 @@ pub trait CartRead {
     fn cart_read(&self, address: u16) -> u8;
     fn cart_write(&self, address: u16, value: u8);
 }
-
+//
 impl CartRead for CartContext {
     fn cart_read(&self, address: u16) -> u8 {
         self.rom_data[address as usize]
