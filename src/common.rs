@@ -11,15 +11,19 @@ macro_rules! bit {
 pub(crate) use bit;
 
 macro_rules! bit_set {
-    ($a: expr, $n: expr, $on: expr) => {
+    ($a: expr, $n: expr, $on: expr) => {{
         if $on != 0 {
-            $a |= (1 << $n);
+            $a |= 1 << $n; 
         } else {
-            $a &= !(1 << $n);
+            $a &= !(1 << $n); 
         }
         $a
-    };
+    }};
 }
+
+
+
+pub(crate) use bit_set;
 
 macro_rules! between {
     ($a: expr, $b: expr, $c: expr) => {

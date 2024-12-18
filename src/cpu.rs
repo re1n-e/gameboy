@@ -1,6 +1,6 @@
 use crate::bus::{self, bus_read};
 use crate::cart::CartContext;
-use crate::common::bit;
+use crate::common::{bit, bit_set};
 use crate::instructions::{self, inst_name, AddrMode, CondType, InType, RegType};
 struct CpuRegister {
     a: u8,
@@ -158,9 +158,27 @@ impl CpuContext {
         panic!("INVALID INSTRUCTION");
     }
 
-    fn proc_xor(&self) {
-        // TODO: Implement load instruction
-        todo!("Xor instruction not implemented");
+    fn cpu_set_flags(&mut self, z: i8, n: i8, h: i8, c: i8) {
+        if z != -1 {
+            self.regs.f = bit_set!(self.regs.f, 7, z);
+        }
+
+        if n != -1 {
+            self.regs.f = bit_set!(self.regs.f, 6, n);
+        }
+
+        if h != -1 {
+            self.regs.f = bit_set!(self.regs.f, 5, h);
+        }
+
+        if c != -1 {
+            self.regs.f = bit_set!(self.regs.f, 4, c);
+        }
+    }
+
+    fn proc_xor(&mut self) {
+        self.regs.a ^= self.fetched_data as u8 & 0xFF;
+        self.cpu_set_flags(if self.regs.a == 0 {1} else {0}, 0, 0, 0);
     }
 
     fn proc_ld(&self) {
