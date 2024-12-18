@@ -1,6 +1,7 @@
-use crate::bus;
+use crate::bus::{self, bus_read};
 use crate::cart::CartContext;
-use crate::instructions::{self, AddrMode, RegType};
+use crate::common::bit;
+use crate::instructions::{self, inst_name, AddrMode, CondType, InType, RegType};
 struct CpuRegister {
     a: u8,
     f: u8,
@@ -25,7 +26,7 @@ impl CpuRegister {
             e: 0,
             h: 0,
             l: 0,
-            pc: 100,
+            pc: 0,
             sp: 0,
         }
     }
@@ -39,6 +40,7 @@ pub struct CpuContext {
     cur_inst: Option<instructions::Instruction>,
     dest_is_mem: bool,
     halted: bool,
+    int_master_enable: bool,
     stepping: bool,
 }
 
@@ -50,6 +52,7 @@ impl CpuContext {
             mem_dest: 0,
             cur_opcode: 0,
             cur_inst: None,
+            int_master_enable: true,
             dest_is_mem: false,
             halted: false,
             stepping: false,
@@ -107,28 +110,103 @@ impl CpuContext {
                 }
                 _ => panic!("Unknown addressing mode"),
             }
-        } else {
-            panic!("Unknown Instruction");
-        }
+        } 
     }
 
     fn execute(&mut self) {
-        println!("Not executed yet");
+        if let Some(inst) = &self.cur_inst {
+            match inst.type_in {
+                InType::InNone => self.proc_none(),
+                InType::InLd => self.proc_ld(),
+                InType::InJp => self.proc_jp(),
+                InType::InDi => self.proc_di(),
+                InType::InXor => self.proc_xor(),
+                InType::InNop => (),
+                _ => (),
+            }
+        } 
     }
 
     pub fn cpu_step(&mut self, cart: &CartContext) -> bool {
-        println!("PC: {} ", self.regs.pc);
         if !self.halted {
             self.fetch_instruction(cart);
             self.fetch_data(cart);
+            if let Some(inst) = &self.cur_inst {
+                println!(
+                    "PC: {:04X}  INST: {}  ({:02X} {:02X} {:02X}) A: {:02X} B: {:02X} C: {:02X}",
+                    self.regs.pc,
+                    inst_name(&inst.type_in),
+                    self.cur_opcode,
+                    bus_read(cart, self.regs.pc + 1),
+                    bus_read(cart, self.regs.pc + 2),
+                    self.regs.a,
+                    self.regs.b,
+                    self.regs.c
+                );
+            }
             self.execute();
         }
         true
     }
+
+    fn proc_di(&mut self) {
+        self.int_master_enable = false;
+    }
+
+    // Instruction processing methods
+    fn proc_none(&self) {
+        panic!("INVALID INSTRUCTION");
+    }
+
+    fn proc_xor(&self) {
+        // TODO: Implement load instruction
+        todo!("Xor instruction not implemented");
+    }
+
+    fn proc_ld(&self) {
+        // TODO: Implement load instruction
+        todo!("Load instruction not implemented");
+    }
+
+    fn proc_jp(&mut self) {
+        if self.check_condition() {
+            self.regs.pc = self.fetched_data;
+            emu_cycle(1);
+        }
+    }
+
+    // Condition checking method
+    fn check_condition(&self) -> bool {
+        let z: bool = self.get_flag_z();
+        let c: bool = self.get_flag_c();
+
+        if let Some(inst) = &self.cur_inst {
+            match inst.cond {
+                CondType::CtNone => true,
+                CondType::CtC => c,
+                CondType::CtNc => !c,
+                CondType::CtZ => z,
+                CondType::CtNz => !z,
+            }
+        } else {
+            false
+        }
+    }
+
+    // Flag checking methods
+    fn get_flag_z(&self) -> bool {
+        bit!(self.regs.f, 7) == 1
+    }
+
+    fn get_flag_c(&self) -> bool {
+        bit!(self.regs.f, 4) == 1
+    }
 }
 
+// Utility function to reverse 16-bit value
 fn reverse(n: u16) -> u16 {
     ((n & 0xFF00) >> 8) | ((n & 0x00FF) << 8)
 }
 
+// Emulation cycle function (placeholder)
 fn emu_cycle(cpu_cycles: u8) {}

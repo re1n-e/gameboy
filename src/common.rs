@@ -8,6 +8,8 @@ macro_rules! bit {
     };
 }
 
+pub(crate) use bit;
+
 macro_rules! bit_set {
     ($a: expr, $n: expr, $on: expr) => {
         if $on != 0 {
