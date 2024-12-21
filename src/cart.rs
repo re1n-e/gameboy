@@ -260,7 +260,7 @@ impl CartContext {
 
 pub trait CartRead {
     fn cart_read(&self, address: u16) -> u8;
-    fn cart_write(&self, address: u16, value: u8);
+    fn cart_write(&mut self, address: u16, value: u8);
 }
 
 impl CartRead for CartContext {
@@ -269,7 +269,7 @@ impl CartRead for CartContext {
     }
 
     
-    fn cart_write(&self, address: u16, value: u8) {
+    fn cart_write(&mut self, address: u16, value: u8) {
         panic!("Not implemented cart write!");
     }
 }

@@ -6,3 +6,4 @@ pub mod emu;
 pub mod ppu;
 pub mod timer;
 pub mod instructions;
+pub mod ram;

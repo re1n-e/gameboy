@@ -1,7 +1,8 @@
-use crate::bus::{self, bus_read};
+use crate::bus::{self, bus_read, bus_write, bus_write16};
 use crate::cart::CartContext;
 use crate::common::{bit, bit_set};
 use crate::instructions::{self, inst_name, AddrMode, CondType, InType, RegType};
+use crate::ram::RamContext;
 struct CpuRegister {
     a: u8,
     f: u8,
@@ -38,6 +39,7 @@ pub struct CpuContext {
     mem_dest: u16,
     cur_opcode: u8,
     cur_inst: Option<instructions::Instruction>,
+    ram: RamContext,
     dest_is_mem: bool,
     halted: bool,
     int_master_enable: bool,
@@ -53,6 +55,7 @@ impl CpuContext {
             cur_opcode: 0,
             cur_inst: None,
             int_master_enable: true,
+            ram: RamContext::new(),
             dest_is_mem: false,
             halted: false,
             stepping: false,
@@ -82,7 +85,7 @@ impl CpuContext {
     }
 
     fn fetch_instruction(&mut self, cart: &CartContext) {
-        self.cur_opcode = bus::bus_read(cart, self.regs.pc);
+        self.cur_opcode = bus::bus_read(cart, &self.ram, self.regs.pc);
         self.regs.pc = self.regs.pc.wrapping_add(1);
         self.cur_inst = instructions::instruction_by_opcode(self.cur_opcode);
     }
@@ -96,35 +99,36 @@ impl CpuContext {
                 AddrMode::AmImp => return,
                 AddrMode::AmR => self.fetched_data = self.cpu_read_reg(&inst.reg_1),
                 AddrMode::AmRD8 => {
-                    self.fetched_data = bus::bus_read(cart, self.regs.pc) as u16;
+                    self.fetched_data = bus::bus_read(cart, &self.ram, self.regs.pc) as u16;
                     emu_cycle(1);
                     self.regs.pc += 1;
                 }
                 AddrMode::AmD16 => {
-                    let lo = bus::bus_read(cart, self.regs.pc) as u16;
+                    let lo = bus::bus_read(cart, &self.ram, self.regs.pc) as u16;
                     emu_cycle(1);
-                    let hi = bus::bus_read(cart, self.regs.pc + 1) as u16;
+                    let hi = bus::bus_read(cart, &self.ram, self.regs.pc + 1) as u16;
                     emu_cycle(1);
                     self.fetched_data = lo | (hi << 8);
                     self.regs.pc += 2;
                 }
                 _ => panic!("Unknown addressing mode"),
             }
-        } 
+        }
     }
 
     fn execute(&mut self) {
         if let Some(inst) = &self.cur_inst {
             match inst.type_in {
                 InType::InNone => self.proc_none(),
-                InType::InLd => self.proc_ld(),
+                InType::InLd => self.proc_ld(cart),
+                InType::InLdh => self.proc_ldh(cart),
                 InType::InJp => self.proc_jp(),
                 InType::InDi => self.proc_di(),
                 InType::InXor => self.proc_xor(),
                 InType::InNop => (),
                 _ => (),
             }
-        } 
+        }
     }
 
     pub fn cpu_step(&mut self, cart: &CartContext) -> bool {
@@ -133,15 +137,19 @@ impl CpuContext {
             self.fetch_data(cart);
             if let Some(inst) = &self.cur_inst {
                 println!(
-                    "PC: {:04X}  INST: {}  ({:02X} {:02X} {:02X}) A: {:02X} B: {:02X} C: {:02X}",
+                    "PC: {:04X}  INST: {}  ({:02X} {:02X} {:02X}) A: {:02X} BC: {:02X}{:02X} DE: {:02X}{:02X} HL: {:02X}{:02X}",
                     self.regs.pc,
                     inst_name(&inst.type_in),
                     self.cur_opcode,
-                    bus_read(cart, self.regs.pc + 1),
-                    bus_read(cart, self.regs.pc + 2),
+                    bus_read(cart, &self.ram, self.regs.pc + 1),
+                    bus_read(cart, &self.ram, self.regs.pc + 2),
                     self.regs.a,
                     self.regs.b,
-                    self.regs.c
+                    self.regs.c,
+                    self.regs.d,
+                    self.regs.e,
+                    self.regs.h,
+                    self.regs.l,
                 );
             }
             self.execute();
@@ -158,32 +166,73 @@ impl CpuContext {
         panic!("INVALID INSTRUCTION");
     }
 
-    fn cpu_set_flags(&mut self, z: i8, n: i8, h: i8, c: i8) {
-        if z != -1 {
-            self.regs.f = bit_set!(self.regs.f, 7, z);
-        }
+    fn cpu_set_flags(&mut self, z: u8, n: u8, h: u8, c: u8) {
+        self.regs.f = bit_set!(self.regs.f, 7, z);
+        self.regs.f = bit_set!(self.regs.f, 6, n);
 
-        if n != -1 {
-            self.regs.f = bit_set!(self.regs.f, 6, n);
-        }
-
-        if h != -1 {
-            self.regs.f = bit_set!(self.regs.f, 5, h);
-        }
-
-        if c != -1 {
-            self.regs.f = bit_set!(self.regs.f, 4, c);
-        }
+        self.regs.f = bit_set!(self.regs.f, 5, h);
+        self.regs.f = bit_set!(self.regs.f, 4, c);
     }
 
     fn proc_xor(&mut self) {
         self.regs.a ^= self.fetched_data as u8 & 0xFF;
-        self.cpu_set_flags(if self.regs.a == 0 {1} else {0}, 0, 0, 0);
+        self.cpu_set_flags(if self.regs.a == 0 { 1 } else { 0 }, 0, 0, 0);
     }
 
-    fn proc_ld(&self) {
+    fn proc_ld(&mut self, cart: &CartContext) {
         // TODO: Implement load instruction
+        if self.dest_is_mem {
+            if let Some(inst) = &self.cur_inst {
+                match inst.reg_2 {
+                    RegType::RtAf => {
+                        emu_cycle(1);
+                        bus_write16(cart, &self.ram, self.mem_dest, self.fetched_data);
+                    }
+                    _ => bus_write(cart, &self.ram, self.mem_dest, self.fetched_data as u8),
+                }
+            }
+            return;
+        }
+
+        if let Some(inst) = &self.cur_inst {
+            match inst.mode {
+                AddrMode::AmHlspr => {
+                    let hflag: u8 = (self.cpu_read_reg(&inst.reg_2) & 0xF) as u8
+                        + if (self.fetched_data & 0xF) >= 0x10 {
+                            1
+                        } else {
+                            0
+                        };
+
+                    let cflag: u8 = (self.cpu_read_reg(&inst.reg_2) & 0xFF) as u8
+                        + if (self.fetched_data & 0xFF) >= 0x100 {
+                            1
+                        } else {
+                            0
+                        };
+
+                    self.cpu_set_flags(0, 0, hflag, cflag);
+                    self.cpu_set_reg(
+                        inst.reg_1,
+                        self.cpu_read_reg(&inst.reg_2) + self.fetched_data,
+                    );
+                }
+                _ => return,
+            }
+        }
         todo!("Load instruction not implemented");
+    }
+
+    fn proc_ldh(&self, cart: &CartContext) {
+        if let Some(inst) = &self.cur_inst {
+            match inst.reg_1 {
+                RegType::RtA => self.cpu_set_reg(
+                    inst.reg_1,
+                    bus_read(cart, &self.ram, 0xFF00 | self.fetched_data),
+                ),
+                _ => (),
+            }
+        }
     }
 
     fn proc_jp(&mut self) {
