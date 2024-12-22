@@ -1,4 +1,4 @@
-use crate::bus::{self, bus_read, bus_write, bus_write16};
+use crate::bus::{self, bus_read, bus_read16, bus_write, bus_write16};
 use crate::cart::CartContext;
 use crate::common::{bit, bit_set};
 use crate::instructions::{self, inst_name, AddrMode, CondType, InType, RegType};
@@ -33,21 +33,23 @@ impl CpuRegister {
     }
 }
 
-pub struct CpuContext {
+pub struct CpuContext<'a> {
     regs: CpuRegister,
     fetched_data: u16,
     mem_dest: u16,
     cur_opcode: u8,
     cur_inst: Option<instructions::Instruction>,
     ram: RamContext,
+    cart: &'a mut CartContext,
     dest_is_mem: bool,
     halted: bool,
     int_master_enable: bool,
+    ie_register: u8,
     stepping: bool,
 }
 
-impl CpuContext {
-    pub fn new() -> Self {
+impl<'a> CpuContext<'a> {
+    pub fn new(cart: &'a mut CartContext) -> Self {
         CpuContext {
             regs: CpuRegister::new(),
             fetched_data: 0,
@@ -56,7 +58,9 @@ impl CpuContext {
             cur_inst: None,
             int_master_enable: true,
             ram: RamContext::new(),
+            cart,
             dest_is_mem: false,
+            ie_register: 0,
             halted: false,
             stepping: false,
         }
@@ -84,13 +88,15 @@ impl CpuContext {
         }
     }
 
-    fn fetch_instruction(&mut self, cart: &CartContext) {
-        self.cur_opcode = bus::bus_read(cart, &self.ram, self.regs.pc);
+    fn cpu_set_reg(&mut self, rt: &RegType, value: u16) {}
+
+    fn fetch_instruction(&mut self) {
+        self.cur_opcode = bus::bus_read(self.cart, &self.ram, self.regs.pc);
         self.regs.pc = self.regs.pc.wrapping_add(1);
         self.cur_inst = instructions::instruction_by_opcode(self.cur_opcode);
     }
 
-    fn fetch_data(&mut self, cart: &CartContext) {
+    fn fetch_data(&mut self) {
         self.mem_dest = 0;
         self.dest_is_mem = false;
 
@@ -99,14 +105,14 @@ impl CpuContext {
                 AddrMode::AmImp => return,
                 AddrMode::AmR => self.fetched_data = self.cpu_read_reg(&inst.reg_1),
                 AddrMode::AmRD8 => {
-                    self.fetched_data = bus::bus_read(cart, &self.ram, self.regs.pc) as u16;
+                    self.fetched_data = bus::bus_read(self.cart, &self.ram, self.regs.pc) as u16;
                     emu_cycle(1);
                     self.regs.pc += 1;
                 }
                 AddrMode::AmD16 => {
-                    let lo = bus::bus_read(cart, &self.ram, self.regs.pc) as u16;
+                    let lo = bus::bus_read(self.cart, &self.ram, self.regs.pc) as u16;
                     emu_cycle(1);
-                    let hi = bus::bus_read(cart, &self.ram, self.regs.pc + 1) as u16;
+                    let hi = bus::bus_read(self.cart, &self.ram, self.regs.pc + 1) as u16;
                     emu_cycle(1);
                     self.fetched_data = lo | (hi << 8);
                     self.regs.pc += 2;
@@ -120,8 +126,8 @@ impl CpuContext {
         if let Some(inst) = &self.cur_inst {
             match inst.type_in {
                 InType::InNone => self.proc_none(),
-                InType::InLd => self.proc_ld(cart),
-                InType::InLdh => self.proc_ldh(cart),
+                InType::InLd => self.proc_ld(),
+                InType::InLdh => self.proc_ldh(),
                 InType::InJp => self.proc_jp(),
                 InType::InDi => self.proc_di(),
                 InType::InXor => self.proc_xor(),
@@ -131,18 +137,18 @@ impl CpuContext {
         }
     }
 
-    pub fn cpu_step(&mut self, cart: &CartContext) -> bool {
+    pub fn cpu_step(&mut self) -> bool {
         if !self.halted {
-            self.fetch_instruction(cart);
-            self.fetch_data(cart);
+            self.fetch_instruction();
+            self.fetch_data();
             if let Some(inst) = &self.cur_inst {
                 println!(
                     "PC: {:04X}  INST: {}  ({:02X} {:02X} {:02X}) A: {:02X} BC: {:02X}{:02X} DE: {:02X}{:02X} HL: {:02X}{:02X}",
                     self.regs.pc,
                     inst_name(&inst.type_in),
                     self.cur_opcode,
-                    bus_read(cart, &self.ram, self.regs.pc + 1),
-                    bus_read(cart, &self.ram, self.regs.pc + 2),
+                    bus_read(self.cart, &self.ram, self.regs.pc + 1),
+                    bus_read(self.cart, &self.ram, self.regs.pc + 2),
                     self.regs.a,
                     self.regs.b,
                     self.regs.c,
@@ -179,16 +185,15 @@ impl CpuContext {
         self.cpu_set_flags(if self.regs.a == 0 { 1 } else { 0 }, 0, 0, 0);
     }
 
-    fn proc_ld(&mut self, cart: &CartContext) {
-        // TODO: Implement load instruction
+    fn proc_ld(&mut self) {
         if self.dest_is_mem {
             if let Some(inst) = &self.cur_inst {
                 match inst.reg_2 {
                     RegType::RtAf => {
                         emu_cycle(1);
-                        bus_write16(cart, &self.ram, self.mem_dest, self.fetched_data);
+                        bus_write16(self.cart, &self.ram, self.mem_dest, self.fetched_data);
                     }
-                    _ => bus_write(cart, &self.ram, self.mem_dest, self.fetched_data as u8),
+                    _ => bus_write(self.cart, &self.ram, self.mem_dest, self.fetched_data as u8),
                 }
             }
             return;
@@ -213,7 +218,7 @@ impl CpuContext {
 
                     self.cpu_set_flags(0, 0, hflag, cflag);
                     self.cpu_set_reg(
-                        inst.reg_1,
+                        &inst.reg_1,
                         self.cpu_read_reg(&inst.reg_2) + self.fetched_data,
                     );
                 }
@@ -223,12 +228,12 @@ impl CpuContext {
         todo!("Load instruction not implemented");
     }
 
-    fn proc_ldh(&self, cart: &CartContext) {
+    fn proc_ldh(&mut self) {
         if let Some(inst) = &self.cur_inst {
             match inst.reg_1 {
                 RegType::RtA => self.cpu_set_reg(
-                    inst.reg_1,
-                    bus_read(cart, &self.ram, 0xFF00 | self.fetched_data),
+                    &inst.reg_1,
+                    bus_read16(self.cart, &self.ram, 0xFF00 | self.fetched_data),
                 ),
                 _ => (),
             }

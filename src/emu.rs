@@ -47,7 +47,7 @@ impl emu_context {
             println!("TTF INIT");
         }
 
-        let mut cpu: CpuContext = CpuContext::new();
+        let mut cpu: CpuContext = CpuContext::new(&mut cart);
 
         self.running = true;
         self.paused = false;
@@ -59,7 +59,7 @@ impl emu_context {
                 continue;
             }
 
-            if !cpu.cpu_step(&cart) {
+            if !cpu.cpu_step() {
                 panic!("CPU Stopped");
             }
 
