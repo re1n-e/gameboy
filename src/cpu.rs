@@ -104,11 +104,13 @@ impl<'a> CpuContext<'a> {
             match inst.mode {
                 AddrMode::AmImp => return,
                 AddrMode::AmR => self.fetched_data = self.cpu_read_reg(&inst.reg_1),
+                AddrMode::AmRr => self.fetched_data = self.cpu_read_reg(&inst.reg_2),
                 AddrMode::AmRD8 => {
                     self.fetched_data = bus::bus_read(self.cart, &self.ram, self.regs.pc) as u16;
                     emu_cycle(1);
                     self.regs.pc += 1;
                 }
+                AddrMode::AmRD16 => (),
                 AddrMode::AmD16 => {
                     let lo = bus::bus_read(self.cart, &self.ram, self.regs.pc) as u16;
                     emu_cycle(1);
@@ -116,6 +118,32 @@ impl<'a> CpuContext<'a> {
                     emu_cycle(1);
                     self.fetched_data = lo | (hi << 8);
                     self.regs.pc += 2;
+                }
+                AddrMode::AmMrr => {
+                    self.fetched_data = self.cpu_read_reg(&inst.reg_2);
+                    self.mem_dest = self.cpu_read_reg(&inst.reg_1);
+                    self.dest_is_mem = true;
+
+                    match inst.reg_1 {
+                        RegType::RtC => self.mem_dest |= 0xFF00,
+                        _ => (),
+                    }
+                }
+                AddrMode::AmRMr => {
+                    let mut addr: u16 = self.cpu_read_reg(&inst.reg_2);
+
+                    match inst.reg_1 {
+                        RegType::RtC => addr |= 0xFF00,
+                        _ => (),
+                    }
+
+                    self.fetched_data = bus_read(self.cart, &self.ram, addr) as u16;
+                }
+                AddrMode::AmRhli => {
+                    self.fetched_data =
+                        bus_read(self.cart, &self.ram, self.cpu_read_reg(&inst.reg_2)) as u16;
+                    emu_cycle(1);
+                    self.cpu_set_reg(&RegType::RtHl, self.cpu_read_reg(&RegType::RtHl) + 1);
                 }
                 _ => panic!("Unknown addressing mode"),
             }
@@ -196,10 +224,13 @@ impl<'a> CpuContext<'a> {
                     _ => bus_write(self.cart, &self.ram, self.mem_dest, self.fetched_data as u8),
                 }
             }
+
+            emu_cycle(1);
+
             return;
         }
 
-        if let Some(inst) = &self.cur_inst {
+        if let Some(inst) = self.cur_inst.clone() {
             match inst.mode {
                 AddrMode::AmHlspr => {
                     let hflag: u8 = (self.cpu_read_reg(&inst.reg_2) & 0xF) as u8
@@ -215,27 +246,28 @@ impl<'a> CpuContext<'a> {
                         } else {
                             0
                         };
-
+                    let reg2_value = self.cpu_read_reg(&inst.reg_2);
                     self.cpu_set_flags(0, 0, hflag, cflag);
-                    self.cpu_set_reg(
-                        &inst.reg_1,
-                        self.cpu_read_reg(&inst.reg_2) + self.fetched_data,
-                    );
+                    self.cpu_set_reg(&inst.reg_1, reg2_value + self.fetched_data);
                 }
-                _ => return,
+                _ => self.cpu_set_reg(&inst.reg_1, self.fetched_data),
             }
         }
-        todo!("Load instruction not implemented");
     }
 
     fn proc_ldh(&mut self) {
-        if let Some(inst) = &self.cur_inst {
+        if let Some(inst) = self.cur_inst.clone() {
             match inst.reg_1 {
                 RegType::RtA => self.cpu_set_reg(
                     &inst.reg_1,
                     bus_read16(self.cart, &self.ram, 0xFF00 | self.fetched_data),
                 ),
-                _ => (),
+                _ => bus_write(
+                    self.cart,
+                    &self.ram,
+                    0xFF00 | self.fetched_data,
+                    self.regs.a,
+                ),
             }
         }
     }
@@ -247,7 +279,6 @@ impl<'a> CpuContext<'a> {
         }
     }
 
-    // Condition checking method
     fn check_condition(&self) -> bool {
         let z: bool = self.get_flag_z();
         let c: bool = self.get_flag_c();
@@ -265,7 +296,6 @@ impl<'a> CpuContext<'a> {
         }
     }
 
-    // Flag checking methods
     fn get_flag_z(&self) -> bool {
         bit!(self.regs.f, 7) == 1
     }
@@ -275,10 +305,8 @@ impl<'a> CpuContext<'a> {
     }
 }
 
-// Utility function to reverse 16-bit value
 fn reverse(n: u16) -> u16 {
     ((n & 0xFF00) >> 8) | ((n & 0x00FF) << 8)
 }
 
-// Emulation cycle function (placeholder)
 fn emu_cycle(cpu_cycles: u8) {}

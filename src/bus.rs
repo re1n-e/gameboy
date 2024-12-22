@@ -79,7 +79,6 @@ pub fn bus_write(cart: &impl CartRead, ram: &impl RamReadWrite, address: u16, va
         //NO_IMPL
     } else if address == 0xFFFF {
         //CPU SET ENABLE REGISTER
-
         cpu_set_ie_register(value);
     } else {
         ram.hram_write(&mut address, value);

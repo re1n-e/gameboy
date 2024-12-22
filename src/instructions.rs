@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub enum AddrMode {
     AmImp,
     AmRD16,
@@ -23,6 +24,7 @@ pub enum AddrMode {
     AmRa16,
 }
 
+#[derive(Clone)]
 pub enum RegType {
     RtNone,
     RtA,
@@ -41,6 +43,7 @@ pub enum RegType {
     RtPc,
 }
 
+#[derive(Clone)]
 pub enum InType {
     InNone,
     InNop,
@@ -93,6 +96,7 @@ pub enum InType {
     InSet,
 }
 
+#[derive(Clone)]
 pub enum CondType {
     CtNone,
     CtNz,
@@ -101,6 +105,7 @@ pub enum CondType {
     CtC,
 }
 
+#[derive(Clone)]
 pub struct Instruction {
     pub type_in: InType,
     pub mode: AddrMode,
