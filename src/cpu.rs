@@ -1,4 +1,4 @@
-use crate::bus::{self, bus_read, bus_read16, bus_write, bus_write16};
+use crate::bus;
 use crate::cart::CartContext;
 use crate::common::{bit, bit_set};
 use crate::instructions::{self, inst_name, AddrMode, CondType, InType, RegType};
@@ -39,8 +39,8 @@ pub struct CpuContext<'a> {
     mem_dest: u16,
     cur_opcode: u8,
     cur_inst: Option<instructions::Instruction>,
-    ram: RamContext,
-    cart: &'a mut CartContext,
+    pub ram: RamContext,
+    pub cart: &'a mut CartContext,
     dest_is_mem: bool,
     halted: bool,
     int_master_enable: bool,
@@ -91,7 +91,7 @@ impl<'a> CpuContext<'a> {
     fn cpu_set_reg(&mut self, rt: &RegType, value: u16) {}
 
     fn fetch_instruction(&mut self) {
-        self.cur_opcode = bus::bus_read(self.cart, &self.ram, self.regs.pc);
+        self.cur_opcode = self.bus_read(self.regs.pc);
         self.regs.pc = self.regs.pc.wrapping_add(1);
         self.cur_inst = instructions::instruction_by_opcode(self.cur_opcode);
     }
@@ -106,15 +106,15 @@ impl<'a> CpuContext<'a> {
                 AddrMode::AmR => self.fetched_data = self.cpu_read_reg(&inst.reg_1),
                 AddrMode::AmRr => self.fetched_data = self.cpu_read_reg(&inst.reg_2),
                 AddrMode::AmRD8 => {
-                    self.fetched_data = bus::bus_read(self.cart, &self.ram, self.regs.pc) as u16;
+                    self.fetched_data = self.bus_read(self.regs.pc) as u16;
                     emu_cycle(1);
                     self.regs.pc += 1;
                 }
                 AddrMode::AmRD16 => (),
                 AddrMode::AmD16 => {
-                    let lo = bus::bus_read(self.cart, &self.ram, self.regs.pc) as u16;
+                    let lo = self.bus_read(self.regs.pc) as u16;
                     emu_cycle(1);
-                    let hi = bus::bus_read(self.cart, &self.ram, self.regs.pc + 1) as u16;
+                    let hi = self.bus_read(self.regs.pc + 1) as u16;
                     emu_cycle(1);
                     self.fetched_data = lo | (hi << 8);
                     self.regs.pc += 2;
@@ -137,11 +137,11 @@ impl<'a> CpuContext<'a> {
                         _ => (),
                     }
 
-                    self.fetched_data = bus_read(self.cart, &self.ram, addr) as u16;
+                    self.fetched_data = self.bus_read(addr) as u16;
                 }
                 AddrMode::AmRhli => {
                     self.fetched_data =
-                        bus_read(self.cart, &self.ram, self.cpu_read_reg(&inst.reg_2)) as u16;
+                        self.bus_read(self.cpu_read_reg(&inst.reg_2)) as u16;
                     emu_cycle(1);
                     self.cpu_set_reg(&RegType::RtHl, self.cpu_read_reg(&RegType::RtHl) + 1);
                 }
@@ -175,8 +175,8 @@ impl<'a> CpuContext<'a> {
                     self.regs.pc,
                     inst_name(&inst.type_in),
                     self.cur_opcode,
-                    bus_read(self.cart, &self.ram, self.regs.pc + 1),
-                    bus_read(self.cart, &self.ram, self.regs.pc + 2),
+                    self.bus_read(self.regs.pc + 1),
+                    self.bus_read(self.regs.pc + 2),
                     self.regs.a,
                     self.regs.b,
                     self.regs.c,
@@ -219,9 +219,9 @@ impl<'a> CpuContext<'a> {
                 match inst.reg_2 {
                     RegType::RtAf => {
                         emu_cycle(1);
-                        bus_write16(self.cart, &self.ram, self.mem_dest, self.fetched_data);
+                        self.bus_write16(self.mem_dest, self.fetched_data);
                     }
-                    _ => bus_write(self.cart, &self.ram, self.mem_dest, self.fetched_data as u8),
+                    _ => self.bus_write(self.mem_dest, self.fetched_data as u8),
                 }
             }
 
@@ -260,11 +260,9 @@ impl<'a> CpuContext<'a> {
             match inst.reg_1 {
                 RegType::RtA => self.cpu_set_reg(
                     &inst.reg_1,
-                    bus_read16(self.cart, &self.ram, 0xFF00 | self.fetched_data),
+                    self.bus_read16(0xFF00 | self.fetched_data),
                 ),
-                _ => bus_write(
-                    self.cart,
-                    &self.ram,
+                _ => self.bus_write(
                     0xFF00 | self.fetched_data,
                     self.regs.a,
                 ),
@@ -303,6 +301,15 @@ impl<'a> CpuContext<'a> {
     fn get_flag_c(&self) -> bool {
         bit!(self.regs.f, 4) == 1
     }
+
+    pub fn cpu_get_ie_register(&self) -> u8 {
+        self.ie_register
+    }
+
+    pub fn cpu_set_ie_register(&mut self, n: u8) {
+        self.ie_register = n;
+    }
+
 }
 
 fn reverse(n: u16) -> u16 {
