@@ -22,7 +22,6 @@ macro_rules! bit_set {
 }
 
 
-
 pub(crate) use bit_set;
 
 macro_rules! between {

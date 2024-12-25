@@ -1,5 +1,5 @@
 use crate::cart::CartContext;
-use crate::instructions::{self, inst_name, AddrMode, CondType, InType, RegType};
+use crate::instructions::{self, inst_name, InType};
 use crate::ram::RamContext;
 pub struct CpuRegister {
     pub a: u8,

@@ -49,24 +49,24 @@ impl<'a> CpuContext<'a> {
                     self.fetched_data =
                         self.bus_read(self.cpu_read_reg(&inst.reg_2)) as u16;
                     emu_cycle(1);
-                    self.cpu_set_reg(&RegType::RtHl, self.cpu_read_reg(&RegType::RtHl) + 1);
+                    self.cpu_set_reg(&RegType::RtHl, self.cpu_read_reg(&RegType::RtHl).wrapping_add(1));
                 }
                 AddrMode::AmRhld => {
                     self.fetched_data = self.bus_read(self.cpu_read_reg(&inst.reg_2)) as u16;
                     emu_cycle(1);
-                    self.cpu_set_reg(&RegType::RtHl, self.cpu_read_reg(&RegType::RtHl) - 1);
+                    self.cpu_set_reg(&RegType::RtHl, self.cpu_read_reg(&RegType::RtHl).wrapping_sub(1));
                 }
                 AddrMode::AmHlir => {
                     self.fetched_data = self.cpu_read_reg(&inst.reg_2);
                     self.mem_dest = self.cpu_read_reg(&inst.reg_1);
                     self.dest_is_mem = true;
-                    self.cpu_set_reg(&RegType::RtHl, self.cpu_read_reg(&RegType::RtHl) + 1);
+                    self.cpu_set_reg(&RegType::RtHl, self.cpu_read_reg(&RegType::RtHl).wrapping_add(1));
                 },
                 AddrMode::AmHldr => {
                     self.fetched_data = self.cpu_read_reg(&inst.reg_2);
                     self.mem_dest = self.cpu_read_reg(&inst.reg_1);
                     self.dest_is_mem = true;
-                    self.cpu_set_reg(&RegType::RtHl, self.cpu_read_reg(&RegType::RtHl) - 1);
+                    self.cpu_set_reg(&RegType::RtHl, self.cpu_read_reg(&RegType::RtHl).wrapping_sub(1));
                 },
                 AddrMode::AmRa8 => {
                     self.fetched_data = self.bus_read(self.regs.pc) as u16;
@@ -122,8 +122,7 @@ impl<'a> CpuContext<'a> {
                     self.regs.pc += 2;
                     self.fetched_data = self.bus_read(addr) as u16;
                     emu_cycle(1);
-                },
-                _ => panic!("Unknown addressing mode: {:?} current opcode: {:04x}", inst.mode, self.cur_opcode),
+                }
             }
         }
     }

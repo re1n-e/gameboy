@@ -2,10 +2,9 @@
 pub enum AddrMode {
     AmImp,
     AmRD16,
-    AmRt,
+    AmRr,
     AmMrr,
     AmR,
-    AmRr,
     AmRD8,
     AmRMr,
     AmRhli,
@@ -191,7 +190,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x09 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtHl,
             reg_2: RegType::RtBc,
             cond: CondType::CtNone,
@@ -321,7 +320,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x19 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtHl,
             reg_2: RegType::RtDe,
             cond: CondType::CtNone,
@@ -443,7 +442,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x29 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtHl,
             reg_2: RegType::RtHl,
             cond: CondType::CtNone,
@@ -557,7 +556,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x39 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtHl,
             reg_2: RegType::RtSp,
             cond: CondType::CtNone,
@@ -607,7 +606,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         // 0x4X
         0x40 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtB,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -615,7 +614,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x41 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtB,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -623,7 +622,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x42 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtB,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -631,7 +630,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x43 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtB,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -639,7 +638,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x44 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtB,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -647,7 +646,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x45 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtB,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -663,7 +662,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x47 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtB,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -671,7 +670,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x48 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtC,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -679,7 +678,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x49 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtC,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -687,7 +686,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x4A => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtC,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -695,7 +694,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x4B => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtC,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -703,7 +702,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x4C => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtC,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -711,7 +710,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x4D => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtC,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -727,7 +726,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x4F => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtC,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -735,7 +734,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x50 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtD,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -743,7 +742,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x51 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtD,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -751,7 +750,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x52 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtD,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -759,7 +758,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x53 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtD,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -767,7 +766,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x54 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtD,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -775,7 +774,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x55 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtD,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -791,7 +790,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x57 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtD,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -799,7 +798,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x58 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtE,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -807,7 +806,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x59 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtE,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -815,7 +814,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x5A => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtE,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -823,7 +822,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x5B => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtE,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -831,7 +830,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x5C => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtE,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -839,7 +838,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x5D => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtE,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -855,7 +854,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x5F => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtE,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -865,7 +864,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         // 0x6X
         0x60 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtH,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -873,7 +872,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x61 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtH,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -881,7 +880,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x62 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtH,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -889,7 +888,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x63 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtH,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -897,7 +896,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x64 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtH,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -905,7 +904,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x65 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtH,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -921,7 +920,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x67 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtH,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -929,7 +928,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x68 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtL,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -937,7 +936,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x69 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtL,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -945,7 +944,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x6A => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtL,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -953,7 +952,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x6B => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtL,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -961,7 +960,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x6C => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtL,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -969,7 +968,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x6D => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtL,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -985,7 +984,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x6F => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtL,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -1057,7 +1056,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x78 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -1065,7 +1064,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x79 => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -1073,7 +1072,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x7A => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -1081,7 +1080,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x7B => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -1089,7 +1088,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x7C => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -1097,7 +1096,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x7D => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -1113,7 +1112,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x7F => Some(Instruction {
             type_in: InType::InLd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -1121,7 +1120,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x80 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -1129,7 +1128,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x81 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -1137,7 +1136,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x82 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -1145,7 +1144,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x83 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -1153,7 +1152,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x84 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -1161,7 +1160,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x85 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -1177,7 +1176,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x87 => Some(Instruction {
             type_in: InType::InAdd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -1185,7 +1184,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x88 => Some(Instruction {
             type_in: InType::InAdc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -1193,7 +1192,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x89 => Some(Instruction {
             type_in: InType::InAdc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -1201,7 +1200,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x8A => Some(Instruction {
             type_in: InType::InAdc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -1209,7 +1208,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x8B => Some(Instruction {
             type_in: InType::InAdc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -1217,7 +1216,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x8C => Some(Instruction {
             type_in: InType::InAdc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -1225,7 +1224,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x8D => Some(Instruction {
             type_in: InType::InAdc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -1241,7 +1240,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x8F => Some(Instruction {
             type_in: InType::InAdc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -1249,7 +1248,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x90 => Some(Instruction {
             type_in: InType::InSub,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -1257,7 +1256,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x91 => Some(Instruction {
             type_in: InType::InSub,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -1265,7 +1264,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x92 => Some(Instruction {
             type_in: InType::InSub,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -1273,7 +1272,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x93 => Some(Instruction {
             type_in: InType::InSub,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -1281,7 +1280,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x94 => Some(Instruction {
             type_in: InType::InSub,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -1289,7 +1288,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x95 => Some(Instruction {
             type_in: InType::InSub,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -1305,7 +1304,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x97 => Some(Instruction {
             type_in: InType::InSub,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -1313,7 +1312,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x98 => Some(Instruction {
             type_in: InType::InSbc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -1321,7 +1320,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x99 => Some(Instruction {
             type_in: InType::InSbc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -1329,7 +1328,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x9A => Some(Instruction {
             type_in: InType::InSbc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -1337,7 +1336,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x9B => Some(Instruction {
             type_in: InType::InSbc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -1345,7 +1344,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x9C => Some(Instruction {
             type_in: InType::InSbc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -1353,7 +1352,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x9D => Some(Instruction {
             type_in: InType::InSbc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -1369,7 +1368,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0x9F => Some(Instruction {
             type_in: InType::InSbc,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -1377,7 +1376,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xA0 => Some(Instruction {
             type_in: InType::InAnd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -1385,7 +1384,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xA1 => Some(Instruction {
             type_in: InType::InAnd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -1393,7 +1392,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xA2 => Some(Instruction {
             type_in: InType::InAnd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -1401,7 +1400,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xA3 => Some(Instruction {
             type_in: InType::InAnd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -1409,7 +1408,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xA4 => Some(Instruction {
             type_in: InType::InAnd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -1417,7 +1416,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xA5 => Some(Instruction {
             type_in: InType::InAnd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -1433,7 +1432,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xA7 => Some(Instruction {
             type_in: InType::InAnd,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -1441,7 +1440,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xA8 => Some(Instruction {
             type_in: InType::InXor,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -1449,7 +1448,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xA9 => Some(Instruction {
             type_in: InType::InXor,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -1457,7 +1456,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xAA => Some(Instruction {
             type_in: InType::InXor,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -1465,7 +1464,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xAB => Some(Instruction {
             type_in: InType::InXor,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -1473,7 +1472,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xAC => Some(Instruction {
             type_in: InType::InXor,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -1481,7 +1480,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xAD => Some(Instruction {
             type_in: InType::InXor,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -1497,7 +1496,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xAF => Some(Instruction {
             type_in: InType::InXor,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -1505,7 +1504,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xB0 => Some(Instruction {
             type_in: InType::InOr,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -1513,7 +1512,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xB1 => Some(Instruction {
             type_in: InType::InOr,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -1521,7 +1520,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xB2 => Some(Instruction {
             type_in: InType::InOr,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -1529,7 +1528,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xB3 => Some(Instruction {
             type_in: InType::InOr,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -1537,7 +1536,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xB4 => Some(Instruction {
             type_in: InType::InOr,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -1545,7 +1544,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xB5 => Some(Instruction {
             type_in: InType::InOr,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -1561,7 +1560,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xB7 => Some(Instruction {
             type_in: InType::InOr,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -1569,7 +1568,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xB8 => Some(Instruction {
             type_in: InType::InCp,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtB,
             cond: CondType::CtNone,
@@ -1577,7 +1576,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xB9 => Some(Instruction {
             type_in: InType::InCp,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtC,
             cond: CondType::CtNone,
@@ -1585,7 +1584,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xBA => Some(Instruction {
             type_in: InType::InCp,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtD,
             cond: CondType::CtNone,
@@ -1593,7 +1592,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xBB => Some(Instruction {
             type_in: InType::InCp,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtE,
             cond: CondType::CtNone,
@@ -1601,7 +1600,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xBC => Some(Instruction {
             type_in: InType::InCp,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtH,
             cond: CondType::CtNone,
@@ -1609,7 +1608,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xBD => Some(Instruction {
             type_in: InType::InCp,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtL,
             cond: CondType::CtNone,
@@ -1625,7 +1624,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
         }),
         0xBF => Some(Instruction {
             type_in: InType::InCp,
-            mode: AddrMode::AmRt,
+            mode: AddrMode::AmRr,
             reg_1: RegType::RtA,
             reg_2: RegType::RtA,
             cond: CondType::CtNone,
@@ -1864,7 +1863,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
             cond: CondType::CtNone,
             param: 0x18,
         }),
-        
+
         //0xEX
         0xE0 => Some(Instruction {
             type_in: InType::InLdh,
@@ -1954,7 +1953,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
             cond: CondType::CtNone,
             param: 0x28,
         }),
-        
+
         //0xFX
         0xF0 => Some(Instruction {
             type_in: InType::InLdh,
@@ -2060,7 +2059,7 @@ pub fn instruction_by_opcode(opcode: u8) -> Option<Instruction> {
             cond: CondType::CtNone,
             param: 0x38,
         }),
-        
+
         _ => panic!("Unknown Opcode: {:02X}", opcode), // Only panic here
     }
 }
