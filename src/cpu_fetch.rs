@@ -20,7 +20,7 @@ impl<'a> CpuContext<'a> {
                 AddrMode::AmD16 => {
                     let lo = self.bus_read(self.regs.pc) as u16;
                     emu_cycle(1);
-                    let hi = self.bus_read(self.regs.pc + 1) as u16;
+                    let hi = self.bus_read(self.regs.pc.wrapping_add(1)) as u16;
                     emu_cycle(1);
                     self.fetched_data = lo | (hi << 8);
                     self.regs.pc += 2;
@@ -93,7 +93,7 @@ impl<'a> CpuContext<'a> {
                 AddrMode::AmD16r => {
                     let lo = self.bus_read(self.regs.pc);
                     emu_cycle(1);
-                    let hi = self.bus_read(self.regs.pc + 1);
+                    let hi = self.bus_read(self.regs.pc.wrapping_add(1));
                     emu_cycle(1);
                     self.mem_dest = (lo as u16) | ((hi as u16) << 8);
                     self.dest_is_mem = true;
@@ -116,7 +116,7 @@ impl<'a> CpuContext<'a> {
                 AddrMode::AmRa16 => {
                     let lo = self.bus_read(self.regs.pc);
                     emu_cycle(1);
-                    let hi = self.bus_read(self.regs.pc + 1);
+                    let hi = self.bus_read(self.regs.pc.wrapping_add(1));
                     emu_cycle(1);
                     let addr = (lo as u16) | ((hi as u16) << 8);
                     self.regs.pc += 2;
