@@ -144,6 +144,38 @@ impl<'a> CpuContext<'a> {
         }
     }
 
+    pub fn proc_rst(&mut self) {
+        if let Some(inst) = &self.cur_inst {
+            self.goto_addr(inst.param as u16, true);
+        }
+    }
+
+    pub fn proc_ret(&mut self) {
+        if let Some(inst) = &self.cur_inst {
+            match inst.cond {
+                CondType::CtNone => (),
+                _ => emu_cycle(1),
+            }
+        }
+
+        if self.check_condition() {
+            let lo: u16 = self.stack_pop() as u16;
+            emu_cycle(1);
+            let hi: u16 = (self.stack_pop() as u16) << 8;
+            emu_cycle(1);
+
+            let n = hi | lo;
+            self.regs.pc = n;
+
+            emu_cycle(1);
+        }
+    }
+
+    pub fn proc_reti(&mut self) {
+        self.int_master_enable = true;
+        self.proc_ret();
+    } 
+
     pub fn check_condition(&self) -> bool {
         let z: bool = self.get_flag_z();
         let c: bool = self.get_flag_c();

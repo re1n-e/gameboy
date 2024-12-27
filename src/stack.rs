@@ -2,7 +2,7 @@ use crate::cpu::CpuContext;
 
 impl<'a> CpuContext<'a> {
     pub fn stack_push(&mut self, data: u8) {
-        self.regs.sp -= 1;
+        self.regs.sp = self.regs.pc.wrapping_sub(1);
         self.bus_write(self.regs.sp, data);
     }
 
@@ -13,7 +13,7 @@ impl<'a> CpuContext<'a> {
 
     pub fn stack_pop(&mut self) -> u8 {
         let res = self.bus_read(self.regs.sp);
-        self.regs.sp += 1;
+        self.regs.sp = self.regs.sp.wrapping_add(1);
         res
     }
 

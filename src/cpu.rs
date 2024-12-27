@@ -83,6 +83,9 @@ impl<'a> CpuContext<'a> {
                 InType::InPush => self.proc_push(),
                 InType::InJr => self.proc_jr(),
                 InType::InCall => self.proc_call(),
+                InType::InRet => self.proc_ret(),
+                InType::InRst => self.proc_rst(),
+                InType::InReti => self.proc_reti(),
                 InType::InNop => (),
                 _ => (),
             }
