@@ -267,7 +267,6 @@ impl CartRead for CartContext {
     fn cart_read(&self, address: u16) -> u8 {
         self.rom_data[address as usize]
     }
-
     
     fn cart_write(&mut self, address: u16, value: u8) {
         panic!("Not implemented cart write!");

@@ -9,4 +9,5 @@ pub mod emu;
 pub mod instructions;
 pub mod ppu;
 pub mod ram;
+pub mod stack;
 pub mod timer;

@@ -79,6 +79,10 @@ impl<'a> CpuContext<'a> {
                 InType::InJp => self.proc_jp(),
                 InType::InDi => self.proc_di(),
                 InType::InXor => self.proc_xor(),
+                InType::InPop => self.proc_pop(),
+                InType::InPush => self.proc_push(),
+                InType::InJr => self.proc_jr(),
+                InType::InCall => self.proc_call(),
                 InType::InNop => (),
                 _ => (),
             }
