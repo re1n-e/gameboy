@@ -32,15 +32,18 @@ impl<'a> CpuContext<'a> {
         self.cpu_set_flags(if self.regs.a == 0 { 1 } else { 0 }, 0, 0, 0);
     }
 
+    fn is_16_bit(&self, rt: &RegType) -> bool {
+        rt >= &RegType::RtAf
+    }
+
     pub fn proc_ld(&mut self) {
         if self.dest_is_mem {
             if let Some(inst) = &self.cur_inst {
-                match inst.reg_2 {
-                    RegType::RtAf => {
-                        emu_cycle(1);
-                        self.bus_write16(self.mem_dest, self.fetched_data);
-                    }
-                    _ => self.bus_write(self.mem_dest, self.fetched_data as u8),
+                if self.is_16_bit(&inst.reg_2) {
+                    emu_cycle(1);
+                    self.bus_write16(self.mem_dest, self.fetched_data);
+                } else {
+                    self.bus_write(self.mem_dest, self.fetched_data as u8);
                 }
             }
 
@@ -144,6 +147,24 @@ impl<'a> CpuContext<'a> {
         }
     }
 
+    pub fn proc_inc(&mut self) {
+        if let Some(inst) = &self.cur_inst.clone() {
+            let mut val = self.cpu_read_reg(&inst.reg_1) + 1;
+
+            if self.is_16_bit(&inst.reg_1) {
+                emu_cycle(1);
+            }
+
+            if inst.reg_1 == RegType::RtHl && inst.mode == AddrMode::AmMr {
+                val = self.bus_read(self.cpu_read_reg(&RegType::RtHl)) as u16 + 1;
+                val &= 0xFF;
+                self.bus_write(self.cpu_read_reg(&RegType::RtHl), val as u8);
+            } else {
+                self.cpu_set_reg(&inst.reg_1, val);
+            }
+        }
+    }
+
     pub fn proc_rst(&mut self) {
         if let Some(inst) = &self.cur_inst {
             self.goto_addr(inst.param as u16, true);
@@ -174,7 +195,7 @@ impl<'a> CpuContext<'a> {
     pub fn proc_reti(&mut self) {
         self.int_master_enable = true;
         self.proc_ret();
-    } 
+    }
 
     pub fn check_condition(&self) -> bool {
         let z: bool = self.get_flag_z();

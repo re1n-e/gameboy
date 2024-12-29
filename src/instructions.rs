@@ -1,4 +1,4 @@
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub enum AddrMode {
     AmImp,
     AmRD16,
@@ -23,7 +23,7 @@ pub enum AddrMode {
     AmRa16,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub enum RegType {
     RtNone,
     RtA,
