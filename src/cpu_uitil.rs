@@ -43,6 +43,37 @@ impl<'a> CpuContext<'a> {
             RegType::RtNone => {}
         }
     }
+
+    pub fn cpu_read_reg8(&mut self, rt: &RegType) -> u8 {
+        match rt {
+            RegType::RtA => self.regs.a,
+            RegType::RtF => self.regs.f,
+            RegType::RtB => self.regs.b,
+            RegType::RtC => self.regs.c,
+            RegType::RtD => self.regs.d,
+            RegType::RtE => self.regs.e,
+            RegType::RtH => self.regs.h,
+            RegType::RtL => self.regs.l,
+            RegType::RtHl => self.bus_read(self.cpu_read_reg(&RegType::RtHl)),
+            _ => panic!("No Impl"),
+        }
+    }
+
+    pub fn cpu_set_reg8(&mut self, rt: &RegType, val: u8) {
+        match rt {
+            RegType::RtA => self.regs.a = (val & 0xFF) as u8,
+            RegType::RtF => self.regs.f = (val & 0xFF) as u8,
+            RegType::RtB => self.regs.b = (val & 0xFF) as u8,
+            RegType::RtC => self.regs.c = (val & 0xFF) as u8,
+            RegType::RtD => self.regs.d = (val & 0xFF) as u8,
+            RegType::RtE => self.regs.e = (val & 0xFF) as u8,
+            RegType::RtH => self.regs.h = (val & 0xFF) as u8,
+            RegType::RtL => self.regs.l = (val & 0xFF) as u8,
+            RegType::RtHl => self.bus_write(self.cpu_read_reg(&RegType::RtHl), val),
+            _ => panic!("No impl"),
+        }
+    }
+
 }
 
 fn reverse(n: u16) -> u16 {
