@@ -42,6 +42,7 @@ pub enum RegType {
     RtPc,
 }
 
+
 #[derive(Clone, Debug)]
 pub enum InType {
     InNone,
