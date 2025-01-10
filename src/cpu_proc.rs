@@ -37,54 +37,69 @@ impl<'a> CpuContext<'a> {
     }
 
     pub fn proc_ld(&mut self) {
+        // Handle memory destination case first
         if self.dest_is_mem {
-            if let Some(inst) = &self.cur_inst {
-                if self.is_16_bit(&inst.reg_2) {
-                    emu_cycle(1);
-                    self.bus_write16(self.mem_dest, self.fetched_data);
-                } else {
-                    self.bus_write(self.mem_dest, self.fetched_data as u8);
-                }
+            // Extract needed values before any mutable operations
+            let (is_16_bit, fetched_data, mem_dest) = if let Some(inst) = &self.cur_inst {
+                (
+                    self.is_16_bit(&inst.reg_2),
+                    self.fetched_data,
+                    self.mem_dest,
+                )
+            } else {
+                return;
+            };
+
+            if is_16_bit {
+                emu_cycle(1);
+                self.bus_write16(mem_dest, fetched_data);
+            } else {
+                self.bus_write(mem_dest, fetched_data as u8);
             }
-
             emu_cycle(1);
-
             return;
         }
 
-        if let Some(inst) = self.cur_inst.clone() {
-            match inst.mode {
-                AddrMode::AmHlspr => {
-                    let hflag: u8 = (self.cpu_read_reg(&inst.reg_2) & 0xF) as u8
-                        + if (self.fetched_data & 0xF) >= 0x10 {
-                            1
-                        } else {
-                            0
-                        };
+        // Extract all needed values before any mutations
+        let (reg1, reg2, mode, fetched_data) = if let Some(inst) = &self.cur_inst {
+            (
+                inst.reg_1.clone(),
+                inst.reg_2.clone(),
+                inst.mode.clone(),
+                self.fetched_data,
+            )
+        } else {
+            return;
+        };
 
-                    let cflag: u8 = (self.cpu_read_reg(&inst.reg_2) & 0xFF) as u8
-                        + if (self.fetched_data & 0xFF) >= 0x100 {
-                            1
-                        } else {
-                            0
-                        };
-                    let reg2_value = self.cpu_read_reg(&inst.reg_2);
-                    self.cpu_set_flags(0, 0, hflag, cflag);
-                    self.cpu_set_reg(&inst.reg_1, reg2_value + self.fetched_data);
-                }
-                _ => self.cpu_set_reg(&inst.reg_1, self.fetched_data),
+        match mode {
+            AddrMode::AmHlspr => {
+                let reg2_val = self.cpu_read_reg(&reg2);
+                let hflag =
+                    (reg2_val & 0xF) as u8 + if (fetched_data & 0xF) >= 0x10 { 1 } else { 0 };
+                let cflag =
+                    (reg2_val & 0xFF) as u8 + if (fetched_data & 0xFF) >= 0x100 { 1 } else { 0 };
+
+                self.cpu_set_flags(0, 0, hflag, cflag);
+                self.cpu_set_reg(&reg1, reg2_val + fetched_data);
             }
+            _ => self.cpu_set_reg(&reg1, fetched_data),
         }
     }
 
     pub fn proc_ldh(&mut self) {
-        if let Some(inst) = self.cur_inst.clone() {
-            match inst.reg_1 {
-                RegType::RtA => {
-                    self.cpu_set_reg(&inst.reg_1, self.bus_read16(0xFF00 | self.fetched_data))
-                }
-                _ => self.bus_write(0xFF00 | self.fetched_data, self.regs.a),
-            }
+        let (reg1, fetched_data) = if let Some(inst) = &self.cur_inst {
+            (
+                inst.reg_1.clone(),
+                self.fetched_data,
+            )
+        } else {
+            return;
+        };
+
+        match reg1 {
+            RegType::RtA => self.cpu_set_reg(&reg1, self.bus_read16(0xFF00 | fetched_data)),
+            _ => self.bus_write(0xFF00 | fetched_data, self.regs.a),
         }
     }
 
@@ -122,24 +137,29 @@ impl<'a> CpuContext<'a> {
 
         let n: u16 = (hi << 8) | lo;
 
-        if let Some(inst) = &self.cur_inst.clone() {
-            self.cpu_set_reg(&inst.reg_1, n);
-            match inst.reg_1 {
-                RegType::RtAf => {
-                    self.cpu_set_reg(&inst.reg_1, n & 0xFFF0);
-                }
-                _ => (),
-            }
+        let (reg1, _) = if let Some(inst) = &self.cur_inst {
+            (
+                inst.reg_1.clone(),
+                0,
+            )
+        } else {
+            return;
+        };
+
+        match reg1 {
+            RegType::RtAf => self.cpu_set_reg(&reg1, n & 0xFFF0),
+            _ => self.cpu_set_reg(&reg1, n),
         }
     }
 
     pub fn proc_push(&mut self) {
-        if let Some(inst) = &self.cur_inst.clone() {
-            let hi: u16 = (self.cpu_read_reg(&inst.reg_1) >> 8) & 0xFF;
+        if let Some(inst) = &self.cur_inst {
+            let reg_value = self.cpu_read_reg(&inst.reg_1);
+            let hi: u16 = (reg_value >> 8) & 0xFF;
             emu_cycle(1);
             self.stack_push(hi as u8);
 
-            let lo: u16 = self.cpu_read_reg(&inst.reg_1) & 0xFF;
+            let lo: u16 = reg_value & 0xFF;
             emu_cycle(1);
             self.stack_push(lo as u8);
 
@@ -148,20 +168,26 @@ impl<'a> CpuContext<'a> {
     }
 
     pub fn proc_inc(&mut self) {
-        if let Some(inst) = &self.cur_inst.clone() {
-            let mut val = self.cpu_read_reg(&inst.reg_1) + 1;
+        let (reg1, mode) = if let Some(inst) = &self.cur_inst {
+            (
+                inst.reg_1.clone(),
+                inst.mode.clone(),
+            )
+        } else {
+            return;
+        };
 
-            if self.is_16_bit(&inst.reg_1) {
-                emu_cycle(1);
-            }
+        if self.is_16_bit(&reg1) {
+            emu_cycle(1);
+        }
 
-            if inst.reg_1 == RegType::RtHl && inst.mode == AddrMode::AmMr {
-                val = self.bus_read(self.cpu_read_reg(&RegType::RtHl)) as u16 + 1;
-                val &= 0xFF;
-                self.bus_write(self.cpu_read_reg(&RegType::RtHl), val as u8);
-            } else {
-                self.cpu_set_reg(&inst.reg_1, val);
-            }
+        if reg1 == RegType::RtHl && mode == AddrMode::AmMr {
+            let addr = self.cpu_read_reg(&RegType::RtHl);
+            let val = (self.bus_read(addr) as u16 + 1) & 0xFF;
+            self.bus_write(addr, val as u8);
+        } else {
+            let val = self.cpu_read_reg(&reg1) + 1;
+            self.cpu_set_reg(&reg1, val);
         }
     }
 
@@ -172,11 +198,17 @@ impl<'a> CpuContext<'a> {
     }
 
     pub fn proc_ret(&mut self) {
-        if let Some(inst) = &self.cur_inst {
+        let needs_extra_cycle = if let Some(inst) = &self.cur_inst {
             match inst.cond {
-                CondType::CtNone => (),
-                _ => emu_cycle(1),
+                CondType::CtNone => false,
+                _ => true,
             }
+        } else {
+            false
+        };
+
+        if needs_extra_cycle {
+            emu_cycle(1);
         }
 
         if self.check_condition() {
@@ -198,10 +230,10 @@ impl<'a> CpuContext<'a> {
     }
 
     pub fn check_condition(&self) -> bool {
-        let z: bool = self.get_flag_z();
-        let c: bool = self.get_flag_c();
-
         if let Some(inst) = &self.cur_inst {
+            let z: bool = self.get_flag_z();
+            let c: bool = self.get_flag_c();
+
             match inst.cond {
                 CondType::CtNone => true,
                 CondType::CtC => c,

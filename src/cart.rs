@@ -239,7 +239,7 @@ impl CartContext {
         Ok(true)
     }
 
-    pub fn cart_lic_name(&self) -> String {
+    fn cart_lic_name(&self) -> String {
         if let Some(header) = &self.header {
             if header.new_lic_code <= 0xA4 {
                 return lic_code(header.lic_code);
@@ -248,7 +248,7 @@ impl CartContext {
         String::from("Unknown")
     }
 
-    pub fn cart_type_name(&self) -> String {
+    fn cart_type_name(&self) -> String {
         if let Some(header) = &self.header {
             if header.card_type <= 0x22 {
                 return ROM_TYPES[header.card_type as usize].to_string();

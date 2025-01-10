@@ -36,6 +36,8 @@ impl emu_context {
             if !val {
                 panic!("Failed to load ROM file: {}", &argv[1]);
             }
+        } else {
+            panic!("Failed to load ROM file: {}", &argv[1]);
         }
 
         println!("Cart loaded..");
